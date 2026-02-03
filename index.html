@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Sudoku Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <h2>Sudoku Game</h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar"></div>
+            </div>
+            <p>Loading Game...</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>Sudoku</h1>
+            <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
+        
+        <div class="controls">
+            <button id="newGameBtn" class="btn btn-primary">New Game</button>
+            <button id="resetBtn" class="btn btn-secondary">Reset</button>
+            <button id="solveBtn" class="btn btn-secondary">Solve</button>
+        </div>
+
+        <div class="difficulty-selector">
+            <span>Difficulty:</span>
+            <button class="difficulty-btn" data-difficulty="easy">Easy</button>
+            <button class="difficulty-btn active" data-difficulty="medium">Medium</button>
+            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+        </div>
+
+        <div class="game-info">
+            <div class="info-item">
+                <p>Difficulty: <span id="difficulty">Medium</span></p>
+            </div>
+            <div class="info-item">
+                <p>Time: <span id="timer">00:00</span></p>
+                <button id="pauseBtn" class="pause-btn" title="Pause game">⏸️</button>
+            </div>
+        </div>
+
+        <div id="sudoku-grid" class="sudoku-grid"></div>
+
+        <div class="hints-section">
+            <button id="hintBtn" class="hint-btn">💡 Get Hint (Watch Ad)</button>
+            <span id="hintCounter" class="hint-count">0</span>
+        </div>
+
+        <div class="number-pad">
+            <button class="number-btn" data-number="1">1</button>
+            <button class="number-btn" data-number="2">2</button>
+            <button class="number-btn" data-number="3">3</button>
+            <button class="number-btn" data-number="4">4</button>
+            <button class="number-btn" data-number="5">5</button>
+            <button class="number-btn" data-number="6">6</button>
+            <button class="number-btn" data-number="7">7</button>
+            <button class="number-btn" data-number="8">8</button>
+            <button class="number-btn" data-number="9">9</button>
+            <button class="number-btn clear-btn" id="clearBtn">Clear</button>
+        </div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <h2 id="modalTitle">Congratulations!</h2>
+                <p id="modalMessage">You've completed the puzzle!</p>
+                <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Poki SDK for ads and monetization -->
+    <script src="https://api.poki.com/api/poki-sdk.js"></script>
+    
+    <script src="sudoku.js"></script>
+</body>
+</html>
