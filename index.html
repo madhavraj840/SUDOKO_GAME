@@ -2,87 +2,274 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
     <title>Sudoku Game</title>
+
+    <!-- Local styles only (Poki requirement: no external CSS) -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- ✅ Poki SDK v2 (MANDATORY, Inspector-detected) -->
+    <script src="https://game-cdn.poki.com/scripts/v2/poki-sdk.js"></script>
 </head>
-<body>
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loading-content">
-            <h2>Sudoku Game</h2>
-            <div class="progress-bar-container">
-                <div class="progress-bar"></div>
+
+<body class="dark-mode">
+
+<noscript>
+    <div class="noscript-fallback">
+        <h2>JavaScript Required</h2>
+        <p>This game needs JavaScript to run. Please enable JavaScript and reload the page.</p>
+    </div>
+</noscript>
+
+<!-- ================= START MENU SCREEN ================= -->
+<div id="startScreen" class="screen active">
+    <div class="screen-header">
+        <button id="themeToggleStart" class="theme-toggle" title="Toggle dark mode">
+            <span class="theme-icon">🌙</span>
+        </button>
+    </div>
+    <div class="screen-content">
+        <div class="game-title-container">
+            <h1 id="gameLogoTitle" class="game-logo-title">Sudoku</h1>
+        </div>
+        <div class="menu-buttons">
+            <button id="newGameMenuBtn" class="btn btn-primary btn-large">New Game</button>
+            <button id="savedGameBtn" class="btn btn-secondary btn-large">Saved Game</button>
+            <button id="dailyChallengeMenuBtn" class="btn btn-tertiary btn-large">Daily Challenge</button>
+            <button id="customizeMenuBtn" class="btn btn-primary btn-large" style="background: #9c27b0;">🎨 Customize</button>
+            <div class="menu-language">
+                <label id="languageLabel" class="language-label" for="languageSelect">Language</label>
+                <select id="languageSelect" class="language-select" aria-label="Language">
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                    <option value="it">Italiano</option>
+                    <option value="de">Deutsch</option>
+                    <option value="es">Español</option>
+                    <option value="hi">हिन्दी</option>
+                </select>
             </div>
-            <p>Loading Game...</p>
         </div>
     </div>
+</div>
 
+<!-- ================= DIFFICULTY SELECTION SCREEN ================= -->
+<div id="difficultyScreen" class="screen">
+    <div class="screen-header">
+        <button id="difficultyBackBtn" class="back-btn">← Back</button>
+        <button id="themeToggleDifficulty" class="theme-toggle" title="Toggle dark mode">
+            <span class="theme-icon">🌙</span>
+        </button>
+    </div>
+    <div class="screen-content">
+        <h2 id="difficultyTitle" class="screen-title">Choose Difficulty Level</h2>
+        <div class="difficulty-options">
+            <button id="diffEasyBtn" class="btn btn-primary difficulty-large-btn" onclick="console.log('[Click] Easy button clicked inline'); window.gameInstance && window.gameInstance.startGameWithDifficulty('easy')">Easy</button>
+            <button id="diffMediumBtn" class="btn btn-secondary difficulty-large-btn" onclick="console.log('[Click] Medium button clicked inline'); window.gameInstance && window.gameInstance.startGameWithDifficulty('medium')">Medium</button>
+            <button id="diffHardBtn" class="btn btn-tertiary difficulty-large-btn" onclick="console.log('[Click] Hard button clicked inline'); window.gameInstance && window.gameInstance.startGameWithDifficulty('hard')">Hard</button>
+        </div>
+    </div>
+</div>
+
+<!-- ================= CUSTOMIZATION SCREEN ================= -->
+<div id="customizationScreen" class="screen">
+    <div class="screen-header">
+        <button id="customizationBackBtn" class="back-btn">← Back</button>
+        <button id="themeToggleCustomization" class="theme-toggle" title="Toggle dark mode">
+            <span class="theme-icon">🌙</span>
+        </button>
+    </div>
+    <div class="screen-content">
+        <h2 id="customizationTitle" class="screen-title">Customize Theme</h2>
+        <div class="coin-info-bar">
+            <span id="customizationCoinCount">💰 0</span>
+        </div>
+        <div id="themesList" class="themes-list"></div>
+    </div>
+</div>
+
+<!-- ================= GAME CONTAINER ================= -->
+<div id="gameScreen" class="screen">
     <div class="container">
-        <div class="header">
-            <h1>Sudoku</h1>
-            <button id="themeToggle" class="theme-toggle" title="Toggle dark mode">
-                <span class="theme-icon">🌙</span>
-            </button>
-        </div>
-        
-        <div class="controls">
-            <button id="newGameBtn" class="btn btn-primary">New Game</button>
-            <button id="resetBtn" class="btn btn-secondary">Reset</button>
-            <button id="solveBtn" class="btn btn-secondary">Solve</button>
-        </div>
 
-        <div class="difficulty-selector">
-            <span>Difficulty:</span>
-            <button class="difficulty-btn" data-difficulty="easy">Easy</button>
-            <button class="difficulty-btn active" data-difficulty="medium">Medium</button>
-            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
+    <div class="screen-header game-header">
+        <button id="gameBackBtn" class="back-btn">← Menu</button>
+        <button id="themeToggleGame" class="theme-toggle" title="Toggle dark mode">
+            <span class="theme-icon">🌙</span>
+        </button>
+    </div>
+
+    <div class="header">
+        <h1 id="gameTitle">Sudoku</h1>
+    </div>
+
+    <div class="controls">
+        <button id="newGameBtn" class="btn btn-primary">New Game</button>
+        <button id="resetBtn" class="btn btn-secondary">Reset</button>
+        <button id="solveBtn" class="btn btn-secondary">Solve</button>
+    </div>
+
+    <div class="game-info">
+        <div class="info-item">
+            <p><span id="difficultyTextLabel">Difficulty</span>: <span id="difficulty">Medium</span></p>
         </div>
-
-        <div class="game-info">
-            <div class="info-item">
-                <p>Difficulty: <span id="difficulty">Medium</span></p>
-            </div>
-            <div class="info-item">
-                <p>Time: <span id="timer">00:00</span></p>
-                <button id="pauseBtn" class="pause-btn" title="Pause game">⏸️</button>
-            </div>
+        <div class="info-item">
+            <p><span id="timeLabel">Time</span>: <span id="timer">00:00</span></p>
+            <button id="pauseBtn" class="pause-btn" title="Pause game">⏸️</button>
         </div>
+    </div>
 
-        <div id="sudoku-grid" class="sudoku-grid"></div>
-
-        <div class="hints-section">
-            <button id="hintBtn" class="hint-btn">💡 Get Hint (Watch Ad)</button>
-            <span id="hintCounter" class="hint-count">0</span>
+    <!-- In-game status and inline prompts (no popups) -->
+    <div id="statusBar" class="status-bar" aria-live="polite"></div>
+    <div id="adOverlay" class="ad-overlay hidden" aria-live="polite" aria-label="Ad playing">
+    </div>
+    <div id="inlinePrompt" class="inline-prompt hidden" role="dialog" aria-live="polite">
+        <span id="promptText" class="prompt-text"></span>
+        <div class="prompt-actions">
+            <button id="promptConfirm" class="btn btn-primary">OK</button>
+            <button id="promptCancel" class="btn btn-secondary">Cancel</button>
         </div>
+    </div>
 
-        <div class="number-pad">
-            <button class="number-btn" data-number="1">1</button>
-            <button class="number-btn" data-number="2">2</button>
-            <button class="number-btn" data-number="3">3</button>
-            <button class="number-btn" data-number="4">4</button>
-            <button class="number-btn" data-number="5">5</button>
-            <button class="number-btn" data-number="6">6</button>
-            <button class="number-btn" data-number="7">7</button>
-            <button class="number-btn" data-number="8">8</button>
-            <button class="number-btn" data-number="9">9</button>
-            <button class="number-btn clear-btn" id="clearBtn">Clear</button>
-        </div>
-
-        <div id="modal" class="modal">
-            <div class="modal-content">
-                <h2 id="modalTitle">Congratulations!</h2>
-                <p id="modalMessage">You've completed the puzzle!</p>
-                <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+    <!-- Tutorial Panel -->
+    <div id="tutorialPanel" class="tutorial-panel hidden" aria-live="polite">
+        <div class="tutorial-content">
+            <h3 id="tutorialTitle">How to Play</h3>
+            <p id="tutorialStepText">Select a cell to begin.</p>
+            <div class="tutorial-actions">
+                <button id="tutorialNext" class="btn btn-primary">Next</button>
+                <button id="tutorialSkip" class="btn btn-secondary">Skip</button>
             </div>
         </div>
     </div>
 
-    <!-- Poki SDK for ads and monetization -->
-    <script src="https://api.poki.com/api/poki-sdk.js"></script>
-    
-    <script src="sudoku.js"></script>
+    <!-- Monetization: Coins and Rewards Display -->
+    <div class="monetization-bar">
+        <div class="coin-display">
+            <span>💰</span>
+            <span id="coinCount">0</span>
+        </div>
+        <div class="speed-boost-indicator" id="speedBoostIndicator" style="display: none;">
+            <span id="speedBoostActiveLabel" title="2x Coin bonus active">⚡ 2x Active</span>
+        </div>
+        <button id="speedBoostBtn" class="reward-btn" title="Watch ad for 2x coins">⚡ 2x Coins</button>
+    </div>
+
+    <!-- Monetization: Additional Actions -->
+    <div class="additional-actions">
+        <button id="undoBtn" class="action-btn">↶ Undo</button>
+        <button id="dailyChallengeBtn" class="action-btn">📅 Daily Challenge</button>
+    </div>
+
+    <!-- Engagement & Retention Panel -->
+    <div class="engagement-panel">
+        <div class="streak-info">
+            <span id="streakLabel">Streak</span>
+            <span id="streakCount">0</span>
+        </div>
+        <button id="leaderboardBtn" class="action-btn">🏆 Leaderboard</button>
+        <button id="achievementsBtn" class="action-btn">🎯 Achievements</button>
+    </div>
+
+    <div id="leaderboardPanel" class="panel hidden">
+        <h3 id="leaderboardTitle">Leaderboard (Best Times)</h3>
+        <ol id="leaderboardList" class="panel-list"></ol>
+    </div>
+
+    <div id="achievementsPanel" class="panel hidden">
+        <h3 id="achievementsTitle">Achievements</h3>
+        <ul id="achievementsList" class="panel-list"></ul>
+    </div>
+    <!-- Sudoku Grid -->
+    <div id="sudoku-grid" class="sudoku-grid"></div>
+
+    <!-- Hints -->
+    <div class="hints-section">
+        <button id="hintBtn" class="hint-btn">
+            <span class="emoji">💡</span>
+            <span id="hintButtonLabel">Get Hint (Watch Ad)</span>
+        </button>
+        <span id="hintCounter" class="hint-count">0</span>
+    </div>
+
+    <!-- Number Pad -->
+    <div class="number-pad">
+        <button class="number-btn" data-number="1">1</button>
+        <button class="number-btn" data-number="2">2</button>
+        <button class="number-btn" data-number="3">3</button>
+        <button class="number-btn" data-number="4">4</button>
+        <button class="number-btn" data-number="5">5</button>
+        <button class="number-btn" data-number="6">6</button>
+        <button class="number-btn" data-number="7">7</button>
+        <button class="number-btn" data-number="8">8</button>
+        <button class="number-btn" data-number="9">9</button>
+        <button class="number-btn clear-btn" id="clearBtn">Clear</button>
+    </div>
+
+    <!-- Completion Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Congratulations!</h2>
+            <p id="modalMessage">You've completed the puzzle!</p>
+            <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+        </div>
+    </div>
+
+    </div>
+</div>
+
+</div>
+
+<!-- ================= POKI GLOBAL STATE ================= -->
+<script>
+    /**
+     * Global Poki guards
+     * These prevent duplicate events and Inspector warnings
+     */
+    window.__pokiReady = false;
+    window.__pokiGameplayActive = false;
+
+    // **POKI SDK v2: Initialize SDK on page load**
+    if (typeof PokiSDK !== 'undefined') {
+        PokiSDK.init()
+            .then(() => {
+                console.log('[Poki] SDK initialized successfully');
+                window.__pokiReady = true;
+            })
+            .catch((error) => {
+                console.warn('[Poki] SDK initialization failed:', error);
+                window.__pokiReady = false;
+            });
+    } else {
+        console.warn('[Poki] SDK script not loaded, running standalone mode');
+        window.__pokiReady = false;
+    }
+
+    // **Prevent page scrolling inside Poki iframe (REQUIRED for Poki)**
+    // Only intercept navigation keys when the Sudoku grid is focused
+    window.addEventListener('keydown', e => {
+        const grid = document.getElementById('sudoku-grid');
+        const active = document.activeElement;
+        const isGridFocused = grid && (grid.contains(e.target) || (active && grid.contains(active)));
+
+        if (isGridFocused && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', ' '].includes(e.key)) {
+            e.preventDefault();
+        }
+    });
+    window.addEventListener('wheel', e => {
+        const grid = document.getElementById('sudoku-grid');
+        const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        if (!isTouchDevice && grid && grid.contains(e.target)) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+</script>
+
+<!-- ================= GAME LOGIC ================= -->
+<script src="sudoku.js"></script>
+
 </body>
 </html>
