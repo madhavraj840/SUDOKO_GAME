@@ -114,8 +114,9 @@ class SudokuGame {
         this.eventListenersInitialized = false; // Prevent duplicate event listeners
         this.languageSelectorInitialized = false;
             this.usedSolve = false; // Track if user used solve button
+        this.activeSettingsMenu = null;
+        this.isLandscape = false;
 
-        this.achievements = this.loadAchievements();
         this.leaderboard = this.loadLeaderboard();
         this.streakData = this.loadStreak();
 
@@ -128,6 +129,7 @@ class SudokuGame {
         this.applyThemeStyling();
         this.applyTranslations();
         this.setupScreenNavigation();
+        this.signalLoadingFinished();
         // Don't start game automatically - wait for user to select difficulty
     }
 
@@ -137,9 +139,11 @@ class SudokuGame {
         const savedTheme = localStorage.getItem('sudokuTheme');
         if (savedTheme === 'light') {
             document.body.classList.remove('dark-mode');
+            document.documentElement.classList.remove('dark-mode');
         } else {
             // Ensure dark mode is set and save it as default
             document.body.classList.add('dark-mode');
+            document.documentElement.classList.add('dark-mode');
             if (!savedTheme) {
                 localStorage.setItem('sudokuTheme', 'dark');
             }
@@ -207,7 +211,7 @@ class SudokuGame {
                 difficulty_hard: 'Hard',
                 pause_title: 'Pause game',
                 resume_title: 'Resume game',
-                hint_button: 'Get Hint (Watch Ad)',
+                hint_button: 'Get Hint',
                 clear: 'Clear',
                 modal_title: 'Congratulations!',
                 modal_message: 'You\'ve completed the puzzle!',
@@ -328,7 +332,7 @@ class SudokuGame {
                 difficulty_hard: 'Difficile',
                 pause_title: 'Mettre en pause',
                 resume_title: 'Reprendre',
-                hint_button: 'Indice (Voir pub)',
+                hint_button: 'Indice',
                 clear: 'Effacer',
                 modal_title: 'Bravo!',
                 modal_message: 'Vous avez termine la grille!',
@@ -449,7 +453,7 @@ class SudokuGame {
                 difficulty_hard: 'Difficile',
                 pause_title: 'Metti in pausa',
                 resume_title: 'Riprendi',
-                hint_button: 'Suggerimento (Guarda annuncio)',
+                hint_button: 'Suggerimento',
                 clear: 'Cancella',
                 modal_title: 'Complimenti!',
                 modal_message: 'Hai completato il puzzle!',
@@ -570,7 +574,7 @@ class SudokuGame {
                 difficulty_hard: 'Schwer',
                 pause_title: 'Pausieren',
                 resume_title: 'Fortsetzen',
-                hint_button: 'Hinweis (Werbung ansehen)',
+                hint_button: 'Hinweis',
                 clear: 'Loschen',
                 modal_title: 'Gluckwunsch!',
                 modal_message: 'Du hast das Puzzle gelost!',
@@ -691,7 +695,7 @@ class SudokuGame {
                 difficulty_hard: 'Dificil',
                 pause_title: 'Pausar juego',
                 resume_title: 'Reanudar juego',
-                hint_button: 'Pista (Ver anuncio)',
+                hint_button: 'Pista',
                 clear: 'Borrar',
                 modal_title: 'Felicidades!',
                 modal_message: 'Has completado el rompecabezas!',
@@ -812,7 +816,7 @@ class SudokuGame {
                 difficulty_hard: 'कठिन',
                 pause_title: 'गेम रोकें',
                 resume_title: 'गेम जारी रखें',
-                hint_button: 'संकेत (विज्ञापन देखें)',
+                hint_button: 'संकेत',
                 clear: 'क्लियर',
                 modal_title: 'बधाई!',
                 modal_message: 'आपने पहेली पूरी कर ली!',
@@ -948,14 +952,12 @@ class SudokuGame {
         setText('dailyChallengeBtn', 'daily_challenge');
         setText('streakLabel', 'streak_label');
         setText('leaderboardTitle', 'leaderboard_title');
-        setText('achievementsTitle', 'achievements_title');
         setText('tutorialTitle', 'tutorial_title');
         setText('tutorialNext', 'tutorial_next');
         setText('tutorialSkip', 'tutorial_skip');
         setText('promptConfirm', 'prompt_ok');
         setText('promptCancel', 'prompt_cancel');
         setText('leaderboardBtn', 'leaderboard_btn');
-        setText('achievementsBtn', 'achievements_btn');
 
         setText('difficultyBackBtn', 'back_button');
         setText('customizationBackBtn', 'back_button');
@@ -1134,11 +1136,149 @@ class SudokuGame {
     }
 
     updateThemeIcon() {
-        const icon = document.querySelector('.theme-icon');
-        if (document.body.classList.contains('dark-mode')) {
-            icon.textContent = '🌙';
+        this.updateThemeIcons();
+    }
+
+    updateThemeIcons() {
+        document.querySelectorAll('.theme-icon').forEach(icon => {
+            if (document.body.classList.contains('dark-mode')) {
+                icon.textContent = '🌙';
+            } else {
+                icon.textContent = '☀️';
+            }
+        });
+    }
+
+    updateThemeButtons() {
+        const isDark = document.body.classList.contains('dark-mode');
+        const label = isDark ? 'Theme: Dark' : 'Theme: Light';
+        document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
+            btn.textContent = label;
+        });
+    }
+
+    updateOrientationButtons() {
+        const label = this.isLandscape ? 'Orientation: Landscape' : 'Orientation: Portrait';
+        document.querySelectorAll('.orientation-toggle-btn').forEach(btn => {
+            btn.textContent = label;
+        });
+    }
+
+    initializeSettingsMenus() {
+        console.log('[Settings] Initializing menus...');
+        const menus = document.querySelectorAll('.settings-menu');
+        const overlay = document.getElementById('settingsMenuOverlay');
+
+        // Robust binding helper with logging and forced onClick
+        const bindAction = (id, handler) => {
+            const element = document.getElementById(id);
+            if (!element) {
+                console.warn('[Settings] Button not found during init:', id);
+                return;
+            }
+            console.log('[Settings] Binding action to:', id);
+            
+            // Use onclick to replace any existing listeners and ensure single handler
+            element.onclick = (e) => {
+                console.log('[Settings] Click detected on:', id);
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Perform action first? No, UI expectation is close then act.
+                // But we must ensure closure doesn't destroy context needed for action.
+                this.closeSettingsMenu();
+                
+                console.log('[Settings] Menu closed, scheduling handler for:', id);
+                setTimeout(() => {
+                    console.log('[Settings] Executing handler logic for:', id);
+                    try {
+                        handler();
+                    } catch (err) {
+                        console.error('[Settings] Error executing handler for', id, err);
+                    }
+                }, 10);
+            };
+        };
+
+        // Game screen settings menu actions
+        bindAction('gameBackBtn', () => this.handleGameBackButton());
+        bindAction('newGameBtn', () => this.requestStartNewGame());
+        bindAction('resetBtn', () => this.requestReset());
+        bindAction('solveBtn', () => this.solveGame());
+        bindAction('dailyChallengeBtn', () => this.startDailyChallenge());
+        bindAction('leaderboardBtn', () => this.togglePanel('leaderboardPanel'));
+        bindAction('themeToggleGame', () => this.toggleTheme());
+        bindAction('themeToggleCustomization', () => this.toggleTheme());
+        bindAction('orientationToggleBtn', () => this.toggleOrientation());
+
+        menus.forEach(menu => {
+            const btn = menu.querySelector('.settings-menu-btn');
+
+            if (btn) {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.toggleSettingsMenu(menu);
+                });
+            }
+        });
+
+        if (overlay) {
+            overlay.addEventListener('click', () => {
+                console.log('[Settings] Overlay clicked, closing menu');
+                this.closeSettingsMenu();
+            });
+        }
+    }
+
+    toggleOrientation() {
+        this.isLandscape = !this.isLandscape;
+        document.body.classList.toggle('force-landscape', this.isLandscape);
+        this.updateOrientationButtons();
+    }
+
+    openSettingsMenu(menu) {
+        if (!menu) return;
+        const overlay = document.getElementById('settingsMenuOverlay');
+        const btn = menu.querySelector('.settings-menu-btn');
+        
+        // Move overlay into the active menu container to ensure correct stacking
+        if (overlay) {
+            menu.appendChild(overlay);
+        }
+
+        if (this.activeSettingsMenu && this.activeSettingsMenu !== menu) {
+            this.activeSettingsMenu.classList.remove('active');
+        }
+        this.activeSettingsMenu = menu;
+        menu.classList.add('active');
+        document.body.classList.add('settings-open');
+        if (btn) btn.setAttribute('aria-expanded', 'true');
+        if (overlay) {
+            overlay.classList.remove('hidden');
+            overlay.setAttribute('aria-hidden', 'false');
+        }
+    }
+
+    closeSettingsMenu() {
+        const overlay = document.getElementById('settingsMenuOverlay');
+        if (this.activeSettingsMenu) {
+            const btn = this.activeSettingsMenu.querySelector('.settings-menu-btn');
+            this.activeSettingsMenu.classList.remove('active');
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+        this.activeSettingsMenu = null;
+        document.body.classList.remove('settings-open');
+        if (overlay) {
+            overlay.classList.add('hidden');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    toggleSettingsMenu(menu) {
+        if (this.activeSettingsMenu === menu && document.body.classList.contains('settings-open')) {
+            this.closeSettingsMenu();
         } else {
-            icon.textContent = '☀️';
+            this.openSettingsMenu(menu);
         }
     }
 
@@ -1224,14 +1364,6 @@ class SudokuGame {
             });
         }
 
-        const backGameBtn = document.getElementById('gameBackBtn');
-        if (backGameBtn) {
-            backGameBtn.addEventListener('click', () => {
-                console.log('[Nav] Game back button clicked');
-                this.handleGameBackButton();
-            });
-        }
-
         // **THEME TOGGLES ON ALL SCREENS**
         const themeStart = document.getElementById('themeToggleStart');
         if (themeStart) {
@@ -1243,15 +1375,7 @@ class SudokuGame {
             themeDifficulty.addEventListener('click', () => this.toggleTheme());
         }
 
-        const themeCustomization = document.getElementById('themeToggleCustomization');
-        if (themeCustomization) {
-            themeCustomization.addEventListener('click', () => this.toggleTheme());
-        }
-
-        const themeGame = document.getElementById('themeToggleGame');
-        if (themeGame) {
-            themeGame.addEventListener('click', () => this.toggleTheme());
-        }
+        this.initializeSettingsMenus();
 
         // Show start screen initially
         console.log('[Setup] Initialization complete - showing start screen');
@@ -1282,6 +1406,7 @@ class SudokuGame {
 
     switchScreen(screenId) {
         console.log('[Screen] Switching to screen:', screenId);
+        this.closeSettingsMenu();
         
         // Hide all screens
         document.querySelectorAll('.screen').forEach(screen => {
@@ -1301,17 +1426,19 @@ class SudokuGame {
     }
 
     updateAllThemeIcons() {
-        document.querySelectorAll('.theme-icon').forEach(icon => {
-            if (document.body.classList.contains('dark-mode')) {
-                icon.textContent = '🌙';
-            } else {
-                icon.textContent = '☀️';
-            }
-        });
+        this.updateThemeIcons();
+        this.updateThemeButtons();
+        this.updateOrientationButtons();
     }
 
     toggleTheme() {
+        const now = Date.now();
+        if (now - this.lastThemeToggleAt < 250) {
+            return;
+        }
+        this.lastThemeToggleAt = now;
         document.body.classList.toggle('dark-mode');
+        document.documentElement.classList.toggle('dark-mode');
         const isDarkMode = document.body.classList.contains('dark-mode');
         localStorage.setItem('sudokuTheme', isDarkMode ? 'dark' : 'light');
         this.updateAllThemeIcons();
@@ -1487,11 +1614,8 @@ class SudokuGame {
             }
         };
 
-        addListener('newGameBtn', 'click', () => this.requestStartNewGame());
-        addListener('resetBtn', 'click', () => this.requestReset());
-        addListener('solveBtn', 'click', () => this.solveGame());
         addListener('playAgainBtn', 'click', () => this.startNewGameWithBreak());
-        
+
         // Pause button
         console.log('[Listeners] Attaching pause button listener...');
         addListener('pauseBtn', 'click', () => {
@@ -1510,20 +1634,10 @@ class SudokuGame {
         // Hint button
         addListener('hintBtn', 'click', () => this.requestHint());
         
-        // Difficulty buttons (confirm before switching if there's progress)
-        document.querySelectorAll('.difficulty-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => this.requestChangeDifficulty(e.target.dataset.difficulty));
-        });
-
         // **MONETIZATION: Reward buttons**
         addListener('speedBoostBtn', 'click', () => this.requestSpeedBoost());
         addListener('undoBtn', 'click', () => this.requestUndo());
-        addListener('customizeBtn', 'click', () => this.showCustomizeMenu());
-        addListener('dailyChallengeBtn', 'click', () => this.startDailyChallenge());
 
-        // Engagement panels
-        addListener('leaderboardBtn', 'click', () => this.togglePanel('leaderboardPanel'));
-        addListener('achievementsBtn', 'click', () => this.togglePanel('achievementsPanel'));
 
         // Tutorial controls
         addListener('tutorialNext', 'click', () => this.advanceTutorial());
@@ -1693,15 +1807,6 @@ class SudokuGame {
         this.updateDifficultyText();
     }
 
-    loadAchievements() {
-        const saved = localStorage.getItem('sudokuAchievements');
-        return saved ? JSON.parse(saved) : {};
-    }
-
-    saveAchievements() {
-        localStorage.setItem('sudokuAchievements', JSON.stringify(this.achievements));
-    }
-
     loadLeaderboard() {
         const saved = localStorage.getItem('sudokuLeaderboard');
         const empty = { easy: [], medium: [], hard: [], daily: [] };
@@ -1754,25 +1859,6 @@ class SudokuGame {
         const streak = document.getElementById('streakCount');
         if (streak) streak.textContent = String(this.streakData.count || 0);
         this.renderLeaderboard();
-        this.renderAchievements();
-    }
-
-    updateAchievementsOnWin() {
-        this.unlockAchievement('first_win');
-        if (this.hintsUsed === 0) {
-            this.unlockAchievement('no_hints');
-        }
-        if (this.timer <= 300) {
-            this.unlockAchievement('under_5');
-        }
-        if (this.streakData.count >= 3) {
-            this.unlockAchievement('daily_3');
-        }
-
-        // Cosmetic reward example
-        if (this.achievements.first_win) {
-            this.unlockCosmetic('theme', 'classic');
-        }
     }
 
     updateLeaderboardOnWin() {
@@ -1820,37 +1906,6 @@ class SudokuGame {
         return `${minutes}:${seconds.toString().padStart(2, '0')}`;
     }
 
-    renderAchievements() {
-        const list = document.getElementById('achievementsList');
-        if (!list) return;
-        list.innerHTML = '';
-        const items = this.getAchievementDefinitions();
-        items.forEach((a) => {
-            const li = document.createElement('li');
-            const done = this.achievements[a.id];
-            li.textContent = `${done ? '✓' : '•'} ${a.title} - ${a.desc}`;
-            list.appendChild(li);
-        });
-    }
-
-    getAchievementDefinitions() {
-        return [
-            { id: 'first_win', title: this.t('ach_first_win'), desc: this.t('ach_first_win_desc') },
-            { id: 'no_hints', title: this.t('ach_no_hints'), desc: this.t('ach_no_hints_desc') },
-            { id: 'under_5', title: this.t('ach_under_5'), desc: this.t('ach_under_5_desc') },
-            { id: 'daily_3', title: this.t('ach_daily_3'), desc: this.t('ach_daily_3_desc') }
-        ];
-    }
-
-    unlockAchievement(id) {
-        if (!this.achievements[id]) {
-            this.achievements[id] = true;
-            this.saveAchievements();
-            this.renderAchievements();
-            this.showMessage(this.t('achievement_unlocked'), 'success');
-            this.trackEvent('achievement_unlocked', { id });
-        }
-    }
 
     updateStreakOnWin() {
             // Don't count streak if user used the solve button
@@ -2131,13 +2186,6 @@ class SudokuGame {
             : this.t('confirm_reset_plain');
 
         this.showPrompt(message, () => this.resetGame());
-    }
-
-    toggleTheme() {
-        document.body.classList.toggle('dark-mode');
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        localStorage.setItem('sudokuTheme', isDarkMode ? 'dark' : 'light');
-        this.updateThemeIcon();
     }
 
     togglePause() {
@@ -2884,10 +2932,9 @@ class SudokuGame {
             this.updateMonetizationUI();
             this.saveUserProgress();
 
-            // Engagement: achievements, streaks, leaderboard
+            // Engagement: streaks, leaderboard
             this.updateStreakOnWin();
             this.updateEngagementUI();
-            this.updateAchievementsOnWin();
             this.updateLeaderboardOnWin();
         
         // **POKI SDK: Checkpoint - game completed milestone**
@@ -2983,6 +3030,7 @@ class SudokuGame {
         if (this.undoCount > 0) {
             this.undoCount--;
             this.showMessage(this.t('undo_used', { remaining: this.undoCount }), 'info');
+            this.updateMonetizationUI();
             // TODO: Implement undo logic (restore previous board state)
             return;
         }
@@ -3094,6 +3142,7 @@ class SudokuGame {
         this.undoCount++;
         console.log(`[Monetization] Undo granted via ad. Total undos: ${this.undoCount}`);
         this.showMessage(this.t('undo_granted', { count: this.undoCount }), 'success');
+        this.updateMonetizationUI();
     }
 
     grantSpeedBoost() {
@@ -3182,6 +3231,11 @@ class SudokuGame {
         const coinCount = document.getElementById('coinCount');
         if (coinCount) {
             coinCount.textContent = this.coins;
+        }
+
+        const undoBtn = document.getElementById('undoBtn');
+        if (undoBtn) {
+            undoBtn.textContent = `${this.t('undo')} (${this.undoCount} left)`;
         }
         
         // **MONETIZATION: Show/hide speed boost indicator**
