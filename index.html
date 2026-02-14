@@ -67,9 +67,9 @@
     <div class="screen-content">
         <h2 id="difficultyTitle" class="screen-title">Choose Difficulty Level</h2>
         <div class="difficulty-options">
-            <button id="diffEasyBtn" class="btn btn-primary difficulty-large-btn" onclick="console.log('[Click] Easy button clicked inline'); window.gameInstance && window.gameInstance.startGameWithDifficulty('easy')">Easy</button>
-            <button id="diffMediumBtn" class="btn btn-secondary difficulty-large-btn" onclick="console.log('[Click] Medium button clicked inline'); window.gameInstance && window.gameInstance.startGameWithDifficulty('medium')">Medium</button>
-            <button id="diffHardBtn" class="btn btn-tertiary difficulty-large-btn" onclick="console.log('[Click] Hard button clicked inline'); window.gameInstance && window.gameInstance.startGameWithDifficulty('hard')">Hard</button>
+            <button id="diffEasyBtn" class="btn btn-primary difficulty-large-btn">Easy</button>
+            <button id="diffMediumBtn" class="btn btn-secondary difficulty-large-btn">Medium</button>
+            <button id="diffHardBtn" class="btn btn-tertiary difficulty-large-btn">Hard</button>
         </div>
     </div>
 </div>
@@ -78,9 +78,12 @@
 <div id="customizationScreen" class="screen">
     <div class="screen-header">
         <button id="customizationBackBtn" class="back-btn">← Back</button>
-        <button id="themeToggleCustomization" class="theme-toggle" title="Toggle dark mode">
-            <span class="theme-icon">🌙</span>
-        </button>
+        <div class="settings-menu">
+            <button id="settingsMenuCustomization" class="settings-menu-btn" title="Settings" aria-haspopup="true" aria-expanded="false">⚙️</button>
+            <div class="settings-menu-content" role="menu" aria-label="Settings menu">
+                <button id="themeToggleCustomization" class="theme-toggle-btn" role="menuitem">Theme: Dark</button>
+            </div>
+        </div>
     </div>
     <div class="screen-content">
         <h2 id="customizationTitle" class="screen-title">Customize Theme</h2>
@@ -96,117 +99,116 @@
     <div class="container">
 
     <div class="screen-header game-header">
-        <button id="gameBackBtn" class="back-btn">← Menu</button>
-        <button id="themeToggleGame" class="theme-toggle" title="Toggle dark mode">
-            <span class="theme-icon">🌙</span>
-        </button>
-    </div>
-
-    <div class="header">
-        <h1 id="gameTitle">Sudoku</h1>
-    </div>
-
-    <div class="controls">
-        <button id="newGameBtn" class="btn btn-primary">New Game</button>
-        <button id="resetBtn" class="btn btn-secondary">Reset</button>
-        <button id="solveBtn" class="btn btn-secondary">Solve</button>
-    </div>
-
-    <div class="game-info">
-        <div class="info-item">
-            <p><span id="difficultyTextLabel">Difficulty</span>: <span id="difficulty">Medium</span></p>
-        </div>
-        <div class="info-item">
-            <p><span id="timeLabel">Time</span>: <span id="timer">00:00</span></p>
-            <button id="pauseBtn" class="pause-btn" title="Pause game">⏸️</button>
-        </div>
-    </div>
-
-    <!-- In-game status and inline prompts (no popups) -->
-    <div id="statusBar" class="status-bar" aria-live="polite"></div>
-    <div id="adOverlay" class="ad-overlay hidden" aria-live="polite" aria-label="Ad playing">
-    </div>
-    <div id="inlinePrompt" class="inline-prompt hidden" role="dialog" aria-live="polite">
-        <span id="promptText" class="prompt-text"></span>
-        <div class="prompt-actions">
-            <button id="promptConfirm" class="btn btn-primary">OK</button>
-            <button id="promptCancel" class="btn btn-secondary">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Tutorial Panel -->
-    <div id="tutorialPanel" class="tutorial-panel hidden" aria-live="polite">
-        <div class="tutorial-content">
-            <h3 id="tutorialTitle">How to Play</h3>
-            <p id="tutorialStepText">Select a cell to begin.</p>
-            <div class="tutorial-actions">
-                <button id="tutorialNext" class="btn btn-primary">Next</button>
-                <button id="tutorialSkip" class="btn btn-secondary">Skip</button>
+        <div class="settings-menu">
+            <button id="settingsMenuGame" class="settings-menu-btn" title="Settings" aria-haspopup="true" aria-expanded="false">⚙️</button>
+            <div class="settings-menu-content" role="menu" aria-label="Settings menu">
+                <button id="gameBackBtn" class="action-btn settings-menu-item" role="menuitem">← Menu</button>
+                <button id="newGameBtn" class="action-btn settings-menu-item" role="menuitem">New Game</button>
+                <button id="resetBtn" class="action-btn settings-menu-item" role="menuitem">Reset</button>
+                <button id="solveBtn" class="action-btn settings-menu-item" role="menuitem">Solve</button>
+                <button id="themeToggleGame" class="theme-toggle-btn" role="menuitem">Theme: Dark</button>
+                <button id="orientationToggleBtn" class="action-btn settings-menu-item orientation-toggle-btn" role="menuitem">Orientation: Portrait</button>
+                <button id="dailyChallengeBtn" class="action-btn settings-menu-item" role="menuitem">📅 Daily Challenge</button>
+                <button id="leaderboardBtn" class="action-btn settings-menu-item" role="menuitem">🏆 Leaderboard</button>
             </div>
         </div>
     </div>
 
-    <!-- Monetization: Coins and Rewards Display -->
-    <div class="monetization-bar">
-        <div class="coin-display">
-            <span>💰</span>
-            <span id="coinCount">0</span>
+    <div class="game-layout">
+        <div class="game-left">
+            <div class="header">
+                <h1 id="gameTitle">Sudoku</h1>
+            </div>
+
+            <!-- In-game status and inline prompts (no popups) -->
+            <div id="statusBar" class="status-bar" aria-live="polite"></div>
+            <div id="adOverlay" class="ad-overlay hidden" aria-live="polite" aria-label="Ad playing">
+            </div>
+            <div id="inlinePrompt" class="inline-prompt hidden" role="dialog" aria-live="polite">
+                <span id="promptText" class="prompt-text"></span>
+                <div class="prompt-actions">
+                    <button id="promptConfirm" class="btn btn-primary">OK</button>
+                    <button id="promptCancel" class="btn btn-secondary">Cancel</button>
+                </div>
+            </div>
+
+            <!-- Tutorial Panel -->
+            <div id="tutorialPanel" class="tutorial-panel hidden" aria-live="polite">
+                <div class="tutorial-content">
+                    <h3 id="tutorialTitle">How to Play</h3>
+                    <p id="tutorialStepText">Select a cell to begin.</p>
+                    <div class="tutorial-actions">
+                        <button id="tutorialNext" class="btn btn-primary">Next</button>
+                        <button id="tutorialSkip" class="btn btn-secondary">Skip</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monetization: Coins and Rewards Display -->
+            <div class="monetization-bar">
+                <div class="coin-display">
+                    <span>💰</span>
+                    <span id="coinCount">0</span>
+                </div>
+                <div class="speed-boost-indicator" id="speedBoostIndicator" style="display: none;">
+                    <span id="speedBoostActiveLabel" title="2x Coin bonus active">⚡ 2x Active</span>
+                </div>
+                <button id="speedBoostBtn" class="reward-btn" title="Watch ad for 2x coins">⚡ 2x Coins</button>
+            </div>
+
+            <!-- Engagement & Retention Panel -->
+            <div class="engagement-panel">
+                <div class="streak-info">
+                    <span id="streakLabel">Streak</span>
+                    <span id="streakCount">0</span>
+                </div>
+            </div>
+
+            <div id="leaderboardPanel" class="panel hidden">
+                <h3 id="leaderboardTitle">Leaderboard (Best Times)</h3>
+                <ol id="leaderboardList" class="panel-list"></ol>
+            </div>
+
+            <!-- Sudoku Grid -->
+            <div id="sudoku-grid" class="sudoku-grid"></div>
         </div>
-        <div class="speed-boost-indicator" id="speedBoostIndicator" style="display: none;">
-            <span id="speedBoostActiveLabel" title="2x Coin bonus active">⚡ 2x Active</span>
+
+        <div class="game-right">
+            <div class="game-info">
+                <div class="info-item">
+                    <p><span id="difficultyTextLabel">Difficulty</span>: <span id="difficulty">Medium</span></p>
+                </div>
+                <div class="info-item">
+                    <p><span id="timeLabel">Time</span>: <span id="timer">00:00</span></p>
+                    <button id="pauseBtn" class="pause-btn" title="Pause game">⏸️</button>
+                </div>
+            </div>
+
+            <div class="side-grid">
+                <button class="number-btn" data-number="1">1</button>
+                <button class="number-btn" data-number="2">2</button>
+                <button class="number-btn" data-number="3">3</button>
+                <button class="number-btn" data-number="4">4</button>
+                <button class="number-btn" data-number="5">5</button>
+                <button class="number-btn" data-number="6">6</button>
+                <button class="number-btn" data-number="7">7</button>
+                <button class="number-btn" data-number="8">8</button>
+                <button class="number-btn" data-number="9">9</button>
+                <div class="side-grid-item hint-item">
+                    <button id="hintBtn" class="hint-btn">
+                        <span class="emoji">💡</span>
+                        <span id="hintButtonLabel">Get Hint</span>
+                    </button>
+                    <span id="hintCounter" class="hint-count">0</span>
+                </div>
+                <button class="number-btn clear-btn" id="clearBtn">Clear</button>
+                <button id="undoBtn" class="action-btn">↶ Undo</button>
+                <div class="side-grid-spacer" aria-hidden="true"></div>
+                <div class="side-grid-spacer" aria-hidden="true"></div>
+                <div class="side-grid-spacer" aria-hidden="true"></div>
+                <div class="side-grid-spacer" aria-hidden="true"></div>
+            </div>
         </div>
-        <button id="speedBoostBtn" class="reward-btn" title="Watch ad for 2x coins">⚡ 2x Coins</button>
-    </div>
-
-    <!-- Monetization: Additional Actions -->
-    <div class="additional-actions">
-        <button id="undoBtn" class="action-btn">↶ Undo</button>
-        <button id="dailyChallengeBtn" class="action-btn">📅 Daily Challenge</button>
-    </div>
-
-    <!-- Engagement & Retention Panel -->
-    <div class="engagement-panel">
-        <div class="streak-info">
-            <span id="streakLabel">Streak</span>
-            <span id="streakCount">0</span>
-        </div>
-        <button id="leaderboardBtn" class="action-btn">🏆 Leaderboard</button>
-        <button id="achievementsBtn" class="action-btn">🎯 Achievements</button>
-    </div>
-
-    <div id="leaderboardPanel" class="panel hidden">
-        <h3 id="leaderboardTitle">Leaderboard (Best Times)</h3>
-        <ol id="leaderboardList" class="panel-list"></ol>
-    </div>
-
-    <div id="achievementsPanel" class="panel hidden">
-        <h3 id="achievementsTitle">Achievements</h3>
-        <ul id="achievementsList" class="panel-list"></ul>
-    </div>
-    <!-- Sudoku Grid -->
-    <div id="sudoku-grid" class="sudoku-grid"></div>
-
-    <!-- Hints -->
-    <div class="hints-section">
-        <button id="hintBtn" class="hint-btn">
-            <span class="emoji">💡</span>
-            <span id="hintButtonLabel">Get Hint (Watch Ad)</span>
-        </button>
-        <span id="hintCounter" class="hint-count">0</span>
-    </div>
-
-    <!-- Number Pad -->
-    <div class="number-pad">
-        <button class="number-btn" data-number="1">1</button>
-        <button class="number-btn" data-number="2">2</button>
-        <button class="number-btn" data-number="3">3</button>
-        <button class="number-btn" data-number="4">4</button>
-        <button class="number-btn" data-number="5">5</button>
-        <button class="number-btn" data-number="6">6</button>
-        <button class="number-btn" data-number="7">7</button>
-        <button class="number-btn" data-number="8">8</button>
-        <button class="number-btn" data-number="9">9</button>
-        <button class="number-btn clear-btn" id="clearBtn">Clear</button>
     </div>
 
     <!-- Completion Modal -->
@@ -221,7 +223,7 @@
     </div>
 </div>
 
-</div>
+<div id="settingsMenuOverlay" class="settings-menu-overlay hidden" aria-hidden="true"></div>
 
 <!-- ================= POKI GLOBAL STATE ================= -->
 <script>
